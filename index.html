@@ -173,6 +173,10 @@
                             <label class="form-label text-muted small">PDF 教材資料夾 ID</label>
                             <div class="input-group"><input type="text" id="setting-folder-id" class="form-control"><button class="btn btn-warning" onclick="saveSettings('updateFolderId', 'setting-folder-id')">儲存</button></div>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">GAS API 網址</label>
+                            <div class="input-group"><input type="text" id="setting-gas-url" class="form-control" placeholder="https://script.google.com/.../exec"><button class="btn btn-danger" onclick="saveGasUrlUi()">更新</button></div>
+                        </div>
                         <button class="btn btn-outline-secondary w-100 mb-2" onclick="API.setupDatabase()">初始化資料庫</button>
                         <button class="btn btn-outline-danger w-100" onclick="API.clearBankCache().then(m=>Swal.fire('完成',m,'success'))">清除題庫快取</button>
                     </div>
@@ -204,14 +208,27 @@
 
 <script>
 // ================================================================
-// ⚠️ 部署準備：請將這裡換成您 GAS 部署為網頁應用程式的 URL！
+// GAS 部署為網頁應用程式的 URL (改用 localStorage 儲存，方便直接於畫面設定)
 // ================================================================
-const GAS_API_URL = 'YOUR_WEB_APP_URL_HERE';
+let GAS_API_URL = localStorage.getItem('GAS_API_URL') || '';
+
+function resetGasUrl() {
+    localStorage.removeItem('GAS_API_URL');
+    location.reload();
+}
+
+function saveGasUrlUi() {
+    const url = document.getElementById('setting-gas-url').value.trim();
+    if(url) {
+        localStorage.setItem('GAS_API_URL', url);
+        GAS_API_URL = url;
+        Swal.fire('成功', 'API 網址已更新', 'success').then(() => location.reload());
+    }
+}
 
 // 核心 HTTP Request (前後端分離溝通橋樑)
 async function fetchAPI(action, data = {}) {
-    if(GAS_API_URL === 'https://script.google.com/macros/s/AKfycbz9xx4YsO5r1q9uQJ_0MraFwiFy2oHDbeTL433Tqs3S6Evz3E3pQxjfA_3IPqDGHrzTnw/exec') {
-        Swal.fire('設定錯誤', '請先在 index.html 第 235 行設定正確的 GAS_API_URL！', 'error');
+    if(!GAS_API_URL) {
         throw new Error('未設定 API URL');
     }
     try {
@@ -258,6 +275,29 @@ let _currentAnalysisGrade = '五年級', _currentAnalysisSubject = '數學';
 
 window.onload = async () => {
     initCanvas();
+    
+    // 如果尚未設定 API 網址，彈出視窗讓使用者輸入
+    if (!GAS_API_URL) {
+        const { value: url } = await Swal.fire({
+            title: '首次使用設定',
+            text: '請輸入您 Google Apps Script 的 Web App 網址',
+            input: 'url',
+            inputPlaceholder: 'https://script.google.com/.../exec',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: '儲存並連線'
+        });
+        if (url) {
+            GAS_API_URL = url;
+            localStorage.setItem('GAS_API_URL', url);
+        } else {
+            Swal.fire('錯誤', '必須設定 API 網址才能使用系統', 'error');
+            return;
+        }
+    }
+
+    Swal.fire({ title: '連線中...', text: '正在取得任務資料', didOpen: () => Swal.showLoading() });
+    
     try {
         _allTasks = await API.getTasks();
         ['task-select', 'results-task-select', 'qerror-task-select', 'analysis-task-select'].forEach(id => {
@@ -271,7 +311,16 @@ window.onload = async () => {
                 sel.appendChild(o);
             });
         });
-    } catch(e) { console.error(e); }
+        Swal.close();
+    } catch(e) { 
+        console.error(e);
+        Swal.fire({
+            title: '連線失敗',
+            html: `無法取得資料，請確認 API 網址是否正確或具有正確權限。<br><br><button class="btn btn-outline-danger" onclick="resetGasUrl()">重新設定 API 網址</button>`,
+            icon: 'error',
+            showConfirmButton: false
+        });
+    }
 };
 
 function switchView(id) {
@@ -286,6 +335,7 @@ async function loginAdmin() {
             Swal.close(); switchView('view-admin');
             const s = await API.getQuizSettings(); document.getElementById('setting-quiz-count').value = s.quizCount;
             const fid = await API.getFolderId(); if(fid) document.getElementById('setting-folder-id').value = fid;
+            document.getElementById('setting-gas-url').value = GAS_API_URL;
         } else Swal.fire('錯誤', '密碼不正確', 'error');
     } catch(e) { Swal.fire('錯誤', e.message, 'error'); }
 }
