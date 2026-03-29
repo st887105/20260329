@@ -210,7 +210,7 @@ const GAS_API_URL = 'YOUR_WEB_APP_URL_HERE';
 
 // 核心 HTTP Request (前後端分離溝通橋樑)
 async function fetchAPI(action, data = {}) {
-    if(GAS_API_URL === 'YOUR_WEB_APP_URL_HERE') {
+    if(GAS_API_URL === 'https://script.google.com/macros/s/AKfycbz9xx4YsO5r1q9uQJ_0MraFwiFy2oHDbeTL433Tqs3S6Evz3E3pQxjfA_3IPqDGHrzTnw/exec') {
         Swal.fire('設定錯誤', '請先在 index.html 第 235 行設定正確的 GAS_API_URL！', 'error');
         throw new Error('未設定 API URL');
     }
