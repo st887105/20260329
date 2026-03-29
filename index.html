@@ -350,13 +350,13 @@ const API = {
     generateBatch:             (nodes, grade, subj, idx)    => fetchAPI('generateBatch', { nodesArray: nodes, grade, subject: subj, batchIndex: idx }),
     generateBatchFromFolder:   (fid, nodes, grade, subj, idx) => fetchAPI('generateBatchFromFolder', { folderId: fid, nodesArray: nodes, grade, subject: subj, batchIndex: idx }),
     scanFolder:                fid                          => fetchAPI('scanFolder', { folderId: fid }),
+    getQuizSettings:           ()                           => fetchAPI('getQuizSettings'),
     updateQuizSettings:        c                            => fetchAPI('updateQuizSettings', { count: c }),
     clearBankCache:            ()                           => fetchAPI('clearBankCache'),
     getQuestionErrorRates:     t                            => fetchAPI('getQuestionErrorRates', { taskName: t }),
     getTaskResults:            t                            => fetchAPI('getTaskResults', { taskName: t }),
     analyzeClassWeakNodes:     t                            => fetchAPI('analyzeClassWeakNodes', { taskName: t }),
     generateTeachingWorksheet: (nodes, grade, subj)         => fetchAPI('generateTeachingWorksheet', { topNodes: nodes, grade, subject: subj }),
-    getPdfList:                fid                          => fetchAPI('getPdfList', { folderId: fid }),
 };
 
 // 全域狀態
