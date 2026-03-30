@@ -615,7 +615,8 @@ function submitQuizResult(data) {
     res.appendRow(['測驗時間','任務名稱','座號','姓名','分數','作答歷時(秒)','作答明細']);
   }
   if (!data || !data.taskName) throw new Error('作答資料格式錯誤');
-  res.appendRow([new Date(), data.taskName, data.seatNo||'', data.name||'', data.score||0, data.timeSpent||0, JSON.stringify(data.details||[])]);
+  // ★ 加 ' 前綴強制以文字存入，防止「0330」被 Sheets 自動轉為數字 330
+  res.appendRow([new Date(), "'" + String(data.taskName), data.seatNo||'', data.name||'', data.score||0, data.timeSpent||0, JSON.stringify(data.details||[])]);
   return true;
 }
 

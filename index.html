@@ -586,15 +586,16 @@ function renderQuestion() {
     setTimeout(() => inp.focus(), 80);
   }
 
-  // ★ Issue 3：顯示 hint 提示（若 AI 有提供）
-  if (q.hint) {
+  // ★ 提示框：填充題永遠顯示（有AI hint就用，沒有就給預設引導）；選擇題有hint才顯示
+  const hintText = q.hint || (normType === 'fill' ? '想一想題目在問什麼，再填入答案。' : '');
+  if (hintText) {
     const hint = document.createElement('div');
     hint.className = 'mt-3 p-2';
     hint.style.cssText = 'background:#f3e5f5;border-left:4px solid #9c27b0;border-radius:6px;font-size:.88rem;color:#6a1b9a';
     const strong = document.createElement('strong');
     strong.textContent = '💡 提示：';
     hint.appendChild(strong);
-    hint.appendChild(document.createTextNode(q.hint));
+    hint.appendChild(document.createTextNode(hintText));
     wrap.appendChild(hint);
   }
 
