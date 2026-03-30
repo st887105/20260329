@@ -942,11 +942,21 @@ function renderWorksheet(items, showAnswers) {
   Object.entries(grouped).forEach(([node,qs],gi)=>{
     html+=`<div class="mb-4"><h6 class="fw-bold" style="background:#e3f2fd;padding:6px 12px;border-radius:6px;color:#1565c0">節點 ${gi+1}：${node}</h6>`;
     qs.forEach((q,qi)=>{
+      const isFill = /fill/i.test(q.type||'');
+      // ★ 選擇題：題目前加 ( ) 作答括號；填充題：留空白底線供書寫
+      const answerBlock = showAnswers
+        ? `<div class="small text-success fw-bold mt-1">✅ 解答：${q.answer}</div>`
+        : isFill
+          ? `<div class="mt-1" style="border-bottom:2px solid #999;height:28px;width:60%;min-width:120px"></div>`
+          : ``;  // 選擇題學生版：括號已在題目內，不需要額外空白行
+      const questionLine = isFill
+        ? `<strong>${qi+1}.</strong> ${q.text}`
+        : `<strong>${qi+1}. （　　）</strong> ${q.text}`;  // 選擇題前加作答括號
       html+=`<div class="mb-3 ps-2">
-        <div class="mb-1"><strong>${qi+1}.</strong> ${q.text}</div>
+        <div class="mb-1">${questionLine}</div>
         <div class="small text-info mb-1">💡 引導：${q.step}</div>
         <div class="small text-warning mb-1">🔑 提示：${q.hint}</div>
-        ${showAnswers?`<div class="small text-success fw-bold">✅ 解答：${q.answer}</div>`:'<div class="border-bottom" style="margin-top:18px"></div>'}
+        ${answerBlock}
       </div>`;
     });
     html+='</div>';
@@ -965,10 +975,20 @@ function printWorksheet(withAnswers) {
   Object.entries(grouped).forEach(([node,qs],gi)=>{
     html+=`<h4>◆ 節點 ${gi+1}：${node}</h4>`;
     qs.forEach((q,qi)=>{
-      html+=`<p><strong>${qi+1}. ${q.text}</strong></p>
+      const isFill = /fill/i.test(q.type||'');
+      // ★ 選擇題：題目前加 ( ) 括號；填充題：留底線供書寫
+      const questionLine = isFill
+        ? `${qi+1}. ${q.text}`
+        : `${qi+1}. （　　） ${q.text}`;
+      const answerLine = withAnswers
+        ? `<p style="color:#2e7d32;font-size:.9em">解答：${q.answer}</p>`
+        : isFill
+          ? `<div style="border-bottom:1px solid #ccc;height:28px;margin:6px 0 12px 0;width:50%"></div>`
+          : ``;  // 選擇題學生版無需空白行
+      html+=`<p><strong>${questionLine}</strong></p>
         <p style="color:#0277bd;font-size:.9em">引導：${q.step}</p>
         <p style="color:#f57f17;font-size:.9em">提示：${q.hint}</p>
-        ${withAnswers?`<p style="color:#2e7d32;font-size:.9em">解答：${q.answer}</p>`:'<div style="border-bottom:1px solid #ccc;height:30px;margin:8px 0"></div>'}`;
+        ${answerLine}`;
     });
   });
   html+='</div>';
