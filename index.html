@@ -237,6 +237,18 @@
               </div>
             </div>
 
+          <!-- ★ 使用注意事項 -->
+          <div class="alert alert-info mt-3 mb-0 small" style="border-left:4px solid #1e88e5;border-radius:8px;">
+            <div class="fw-bold mb-2"><i class="fa-solid fa-circle-info me-1"></i>出題注意事項</div>
+            <p class="mb-1">使用「限定 PDF」或「AI+PDF」時，因需讀取多份 PDF 內容送給 Gemini，Token 用量高，<strong>可能觸發免費版頻率限制</strong>。</p>
+            <p class="mb-2">系統會<strong>自動重試</strong>（15 秒 → 30 秒 → 45 秒 → 最多 4 次），不需要手動操作，等待完成即可。</p>
+            <div class="fw-bold mb-1">若頻繁遇到限制，建議：</div>
+            <ul class="mb-0 ps-3">
+              <li>升級 Gemini API 為<strong>付費版</strong>（限制大幅提高，幾乎不觸發）</li>
+              <li><strong>減少 PDF 數量</strong>：資料夾只放與該年級 / 科目相關的 PDF，降低 Token 用量</li>
+            </ul>
+          </div>
+
           </div>
 
           <!-- 成績 -->
