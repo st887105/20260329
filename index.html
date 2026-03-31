@@ -155,7 +155,26 @@
         <div class="tab-content">
           <!-- 建立任務 -->
           <div class="tab-pane fade show active" id="tab-upload">
+
+            <!-- ★ 區塊A：擴充現有任務題庫 -->
+            <div class="card border-primary mb-3 p-3">
+              <h6 class="fw-bold text-primary mb-2"><i class="fa-solid fa-layer-group me-1"></i>擴充現有任務題庫</h6>
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-sm-8">
+                  <label class="form-label text-muted small fw-bold mb-1">選擇要擴充的任務</label>
+                  <select id="expand-task-select" class="form-select" onchange="loadExpandTask()">
+                    <option value="">── 選擇任務 ──</option>
+                  </select>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div id="expand-task-info" class="small text-muted"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ★ 區塊B：建立新任務（上傳 Excel）-->
             <div class="card bg-light p-3">
+              <h6 class="fw-bold text-secondary mb-2"><i class="fa-solid fa-upload me-1"></i>建立新任務（上傳 Excel）</h6>
               <div class="row g-2 mb-3">
                 <div class="col-12 col-sm-5"><input type="text" id="new-task-name" class="form-control" placeholder="任務名稱（例：五甲補救）"></div>
                 <div class="col-6 col-sm-4">
@@ -174,32 +193,37 @@
               <button class="btn btn-primary w-100 mb-2" onclick="processExcel()">
                 <i class="fa-solid fa-magnifying-glass me-1"></i>解析名單與弱點
               </button>
-              <div id="ai-generation-panel" class="ai-panel">
-                <h6 class="text-success"><i class="fa-solid fa-robot me-1"></i>發現全班共有 <span id="weak-count" class="fw-bold">0</span> 個弱點節點</h6>
-                <div class="source-toggle mt-3">
-                  <div class="source-btn active" id="src-btn-ai"    onclick="switchSource('ai')">🤖 純 AI</div>
-                  <div class="source-btn"        id="src-btn-pdf"   onclick="switchSource('pdf')">📄 限定 PDF</div>
-                  <div class="source-btn"        id="src-btn-mixed" onclick="switchSource('mixed')">✨ AI+PDF</div>
+            </div>
+
+            <!-- ★ AI 出題面板（兩個區塊共用）-->
+            <div id="ai-generation-panel" class="ai-panel mt-3">
+              <h6 class="text-success"><i class="fa-solid fa-robot me-1"></i>
+                任務：<span id="ai-panel-task-name" class="fw-bold text-dark"></span>
+                ｜ 共有 <span id="weak-count" class="fw-bold">0</span> 個弱點節點
+              </h6>
+              <div class="source-toggle mt-3">
+                <div class="source-btn active" id="src-btn-ai"    onclick="switchSource('ai')">🤖 純 AI</div>
+                <div class="source-btn"        id="src-btn-pdf"   onclick="switchSource('pdf')">📄 限定 PDF</div>
+                <div class="source-btn"        id="src-btn-mixed" onclick="switchSource('mixed')">✨ AI+PDF</div>
+              </div>
+              <div class="pdf-panel" id="pdf-panel">
+                <div class="input-group input-group-sm mb-2">
+                  <span class="input-group-text"><i class="fa-brands fa-google-drive"></i></span>
+                  <input type="text" id="pdf-folder-id" class="form-control" placeholder="Google Drive 資料夾 ID（已從設定同步）">
+                  <button class="btn btn-outline-warning" onclick="scanPdfFolder()">掃描</button>
                 </div>
-                <div class="pdf-panel" id="pdf-panel">
-                  <div class="input-group input-group-sm mb-2">
-                    <span class="input-group-text"><i class="fa-brands fa-google-drive"></i></span>
-                    <!-- 問題4修正：從 Config 同步填入 -->
-                    <input type="text" id="pdf-folder-id" class="form-control" placeholder="Google Drive 資料夾 ID（已從設定同步）">
-                    <button class="btn btn-outline-warning" onclick="scanPdfFolder()">掃描</button>
-                  </div>
-                  <div id="folder-scan-result" class="small fw-bold mt-2"></div>
-                </div>
-                <button id="btn-ai-generate" class="btn btn-success w-100 mt-2" onclick="triggerAIGeneration()">
-                  <i class="fa-solid fa-wand-magic-sparkles me-1"></i>開始擴充題庫
-                </button>
-                <div class="ai-progress-panel" id="ai-progress-panel">
-                  <div id="progress-title" class="small fw-bold text-success mb-1">命題中...</div>
-                  <div class="progress mb-2" style="height:8px"><div id="ai-progress-bar" class="progress-bar progress-bar-animated bg-success" style="width:0%"></div></div>
-                  <div id="batch-log" class="batch-log"></div>
-                </div>
+                <div id="folder-scan-result" class="small fw-bold mt-2"></div>
+              </div>
+              <button id="btn-ai-generate" class="btn btn-success w-100 mt-2" onclick="triggerAIGeneration()">
+                <i class="fa-solid fa-wand-magic-sparkles me-1"></i>開始擴充題庫
+              </button>
+              <div class="ai-progress-panel" id="ai-progress-panel">
+                <div id="progress-title" class="small fw-bold text-success mb-1">命題中...</div>
+                <div class="progress mb-2" style="height:8px"><div id="ai-progress-bar" class="progress-bar progress-bar-animated bg-success" style="width:0%"></div></div>
+                <div id="batch-log" class="batch-log"></div>
               </div>
             </div>
+
           </div>
 
           <!-- 成績 -->
@@ -529,7 +553,11 @@ window.addEventListener('load', async () => {
         if (nodes && nodes.length > 0) {
           globalUniqueNodes = nodes;
           document.getElementById('weak-count').textContent = nodes.length;
-          if (taskName) document.getElementById('new-task-name').value = taskName;
+          if (taskName) {
+            document.getElementById('new-task-name').value = taskName;
+            const pn = document.getElementById('ai-panel-task-name');
+            if (pn) pn.textContent = taskName;
+          }
           if (grade)   document.getElementById('task-grade').value   = grade;
           if (subject) document.getElementById('task-subject').value = subject;
           document.getElementById('ai-generation-panel').style.display = 'block';
@@ -551,6 +579,14 @@ function refreshAllTaskSelects() {
       : '<option value="">選擇任務</option>' + tasks.map(t => `<option value="${t.name}">${t.name}（${t.subject||''}·${t.grade||''}）</option>`).join('');
     if (prev) el.value = prev;
   });
+  // ★ 更新「擴充現有任務」下拉選單
+  const expSel = document.getElementById('expand-task-select');
+  if (expSel) {
+    const prev = expSel.value;
+    expSel.innerHTML = '<option value="">── 選擇任務 ──</option>' +
+      tasks.map(t => `<option value="${t.name}">${t.name}（${t.subject||''}·${t.grade||''}）</option>`).join('');
+    if (prev) expSel.value = prev;
+  }
   if (tasks.length > 0) loadStudents();
 }
 
@@ -1113,6 +1149,49 @@ function switchSource(src) {
   document.getElementById('pdf-panel').style.display = src!=='ai' ? 'block' : 'none';
 }
 
+// ─── 擴充現有任務 ─────────────────────────────────────────────────────
+function loadExpandTask() {
+  const sel   = document.getElementById('expand-task-select');
+  const info  = document.getElementById('expand-task-info');
+  const tname = sel.value;
+  if (!tname) { info.textContent = ''; return; }
+
+  const task = (_allTasks||[]).find(t => t.name === tname);
+  if (!task) { info.textContent = '找不到任務資料'; return; }
+
+  const nodes = task.nodes || [];
+  if (nodes.length === 0) {
+    info.innerHTML = '<span class="text-warning">⚠️ 此任務無節點資料，請重新上傳 Excel</span>';
+    return;
+  }
+
+  // 載入節點到全域，準備出題
+  globalUniqueNodes = nodes;
+  document.getElementById('weak-count').textContent = nodes.length;
+  const pn = document.getElementById('ai-panel-task-name');
+  if (pn) pn.textContent = tname;
+
+  // 同步年級科目顯示
+  if (task.grade) {
+    const gradeEl = document.getElementById('task-grade');
+    if (gradeEl) { gradeEl.value = task.grade; }
+  }
+  if (task.subject) {
+    const subjEl = document.getElementById('task-subject');
+    if (subjEl) { subjEl.value = task.subject; }
+  }
+
+  // 儲存到 sessionStorage 供下次恢復
+  sessionStorage.setItem('lastUpload', JSON.stringify({
+    nodes, taskName: tname, grade: task.grade||'', subject: task.subject||''
+  }));
+
+  info.innerHTML = `<span class="text-success">✅ ${nodes.length} 個節點已載入</span>`;
+  document.getElementById('ai-generation-panel').style.display = 'block';
+  // 捲動到 AI 面板
+  setTimeout(() => document.getElementById('ai-generation-panel').scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+}
+
 async function scanPdfFolder() {
   const fid = document.getElementById('pdf-folder-id').value.trim();
   if (!fid) return Swal.fire('提示','請輸入資料夾 ID','info');
@@ -1223,6 +1302,8 @@ async function processExcel() {
       sessionStorage.setItem('lastUpload', JSON.stringify({
         nodes: globalUniqueNodes, taskName, grade, subject
       }));
+      const pn = document.getElementById('ai-panel-task-name');
+      if (pn) pn.textContent = taskName;
       Swal.fire('成功',`已建立「${taskName}」，共 ${studentData.length} 位學生，${globalUniqueNodes.length} 個弱點節點`,'success');
       document.getElementById('ai-generation-panel').style.display='block';
     } catch(err) { Swal.fire('錯誤','解析失敗：'+err.message,'error'); }

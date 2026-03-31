@@ -204,7 +204,13 @@ function getTasks() {
   if (!hist) return [];
   return hist.getDataRange().getValues().slice(1)
     .filter(r => r[1])
-    .map(r => ({ name: String(r[1]).replace(/'/g,''), grade: String(r[2]||''), subject: String(r[3]||'數學') }))
+    .map(r => ({
+      name:    String(r[1]).replace(/'/g,''),
+      grade:   String(r[2]||''),
+      subject: String(r[3]||'數學'),
+      // ★ 帶回節點清單，供前端擴充題庫使用
+      nodes:   String(r[5]||'').split(',').map(n=>n.trim()).filter(n=>n)
+    }))
     .reverse();
 }
 
