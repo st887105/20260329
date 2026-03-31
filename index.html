@@ -90,7 +90,7 @@
 <header class="app-header">
   <div class="container text-center">
     <h2><i class="fa-solid fa-graduation-cap me-2"></i>車城國小｜學力檢測 AI 智慧補救系統</h2>
-    <p>數學科 × 國語科 ｜ Gemini AI 差異化出題 ｜ PDF 教材出題 ｜ 弱點節點精準補救（內容僅供參考）</p>
+    <p>數學科 × 國語科 ｜ Gemini AI 差異化出題 ｜ PDF 教材出題 ｜ 弱點節點精準補救（車城國小公開測試版本）</p>
   </div>
 </header>
 
@@ -195,6 +195,17 @@
               </button>
             </div>
 
+            <!-- ★ 使用注意事項（固定顯示，不隨面板隱藏）-->
+            <div class="alert alert-info mt-3 small" style="border-left:4px solid #1e88e5;border-radius:8px;">
+              <div class="fw-bold mb-1"><i class="fa-solid fa-circle-info me-1"></i>出題注意事項</div>
+              <p class="mb-1">使用「限定 PDF」或「AI+PDF」時，因需讀取多份 PDF 內容送給 Gemini，Token 用量高，<strong>可能觸發免費版頻率限制</strong>。系統會<strong>自動重試</strong>（15→30→45 秒，最多 4 次），等待完成即可。</p>
+              <div class="fw-bold mb-1">若頻繁遇到限制，建議：</div>
+              <ul class="mb-0 ps-3">
+                <li>升級 Gemini API 為<strong>付費版</strong>（限制大幅提高，幾乎不觸發）</li>
+                <li><strong>減少 PDF 數量</strong>：資料夾只放與該年級／科目相關的 PDF，降低 Token 用量</li>
+              </ul>
+            </div>
+
             <!-- ★ AI 出題面板（兩個區塊共用）-->
             <div id="ai-generation-panel" class="ai-panel mt-3">
               <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
@@ -236,18 +247,6 @@
                 <div id="batch-log" class="batch-log"></div>
               </div>
             </div>
-
-          <!-- ★ 使用注意事項 -->
-          <div class="alert alert-info mt-3 mb-0 small" style="border-left:4px solid #1e88e5;border-radius:8px;">
-            <div class="fw-bold mb-2"><i class="fa-solid fa-circle-info me-1"></i>出題注意事項</div>
-            <p class="mb-1">使用「限定 PDF」或「AI+PDF」時，因需讀取多份 PDF 內容送給 Gemini，Token 用量高，<strong>可能觸發免費版頻率限制</strong>。</p>
-            <p class="mb-2">系統會<strong>自動重試</strong>（15 秒 → 30 秒 → 45 秒 → 最多 4 次），不需要手動操作，等待完成即可。</p>
-            <div class="fw-bold mb-1">若頻繁遇到限制，建議：</div>
-            <ul class="mb-0 ps-3">
-              <li>升級 Gemini API 為<strong>付費版</strong>（限制大幅提高，幾乎不觸發）</li>
-              <li><strong>減少 PDF 數量</strong>：資料夾只放與該年級 / 科目相關的 PDF，降低 Token 用量</li>
-            </ul>
-          </div>
 
           </div>
 
