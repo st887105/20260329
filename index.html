@@ -90,7 +90,7 @@
 <header class="app-header">
   <div class="container text-center">
     <h2><i class="fa-solid fa-graduation-cap me-2"></i>車城國小｜學力檢測 AI 智慧補救系統</h2>
-    <p>數學科 × 國語科 ｜ Gemini AI 差異化出題 ｜ PDF 教材出題 ｜ 弱點節點精準補救（車城國小研發測試用）</p>
+    <p>數學科 × 國語科 ｜ Gemini AI 差異化出題 ｜ PDF 教材出題 ｜ 弱點節點精準補救（內容僅供參考）</p>
   </div>
 </header>
 
@@ -651,8 +651,20 @@ async function submitQuiz() {
   const timeSpent = Math.round((Date.now()-startTime)/1000);
 
   // ★ 使用 Factory Function 產生詳細記錄（含 node 欄位，資料反正規化）
-  const details = currentQuestions.map((q,i) => createAnswerDetail(q, userAnswers[i]));
-  const correct = details.filter(d => d.isCorrect).length;
+  // ★ displayDetails：完整版，供學生作答結果頁顯示（含 options/hint，不上傳）
+  const displayDetails = currentQuestions.map((q,i) => createAnswerDetail(q, userAnswers[i]));
+  // ★ storeDetails：精簡版，供 GAS 儲存分析（去除 options/hint，大幅縮小 GET URL）
+  const storeDetails = displayDetails.map(d => ({
+    id:               d.id,
+    node:             d.node,
+    questionText:     d.questionText,
+    type:             d.type,
+    userAns:          d.userAns,
+    correctAns:       d.correctAns,
+    displayCorrectAns:d.displayCorrectAns,
+    isCorrect:        d.isCorrect
+  }));
+  const correct = displayDetails.filter(d => d.isCorrect).length;
   const score   = Math.round((correct/currentQuestions.length)*100);
 
   const stu      = window._studentList[parseInt(document.getElementById('student-select').value)] || {};
@@ -660,9 +672,9 @@ async function submitQuiz() {
 
   Swal.fire({title:'送出中...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
   try {
-    await API.submitQuizResult({ taskName, seatNo:stu.seatNo, name:stu.name, score, timeSpent, details });
+    await API.submitQuizResult({ taskName, seatNo:stu.seatNo, name:stu.name, score, timeSpent, details: storeDetails });
     Swal.close();
-    showStudentResult(score, correct, currentQuestions.length, timeSpent, details);
+    showStudentResult(score, correct, currentQuestions.length, timeSpent, displayDetails);
   } catch(e) { Swal.fire('錯誤','送出失敗：'+e.message,'error'); }
 }
 
