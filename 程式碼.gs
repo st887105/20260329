@@ -588,10 +588,12 @@ function generateQuiz(weakNode, taskName) {
     else fallbacks.push(q);
   });
 
+  // ★ 正規化難度：very_easy→easy，容錯 AI 回傳的非標準值
+  const nd = d => /hard/i.test(d||'') ? 'hard' : /easy/i.test(d||'') ? 'easy' : 'medium';
   const pickByDiff = (arr, n) => {
-    const e  = shuffle(arr.filter(q => q.difficulty==='easy'));
-    const m  = shuffle(arr.filter(q => q.difficulty==='medium'));
-    const h  = shuffle(arr.filter(q => q.difficulty==='hard'));
+    const e  = shuffle(arr.filter(q => nd(q.difficulty) === 'easy'));
+    const m  = shuffle(arr.filter(q => nd(q.difficulty) === 'medium'));
+    const h  = shuffle(arr.filter(q => nd(q.difficulty) === 'hard'));
     const ec = Math.round(n*0.3), hc = Math.round(n*0.2), mc = n-ec-hc;
     let   res = [...e.slice(0,ec), ...m.slice(0,mc), ...h.slice(0,hc)];
     if (res.length < n) {

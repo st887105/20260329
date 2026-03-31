@@ -90,7 +90,7 @@
 <header class="app-header">
   <div class="container text-center">
     <h2><i class="fa-solid fa-graduation-cap me-2"></i>車城國小｜學力檢測 AI 智慧補救系統</h2>
-    <p>數學科 × 國語科 ｜ Gemini AI 差異化出題 ｜ PDF 教材出題 ｜ 弱點節點精準補救（車城國小公開測試版本）</p>
+    <p>數學科 × 國語科 ｜ Gemini AI 差異化出題 ｜ PDF 教材出題 ｜ 弱點節點精準補救（內容僅供參考）</p>
   </div>
 </header>
 
@@ -482,12 +482,30 @@ window.addEventListener('load', async () => {
   try {
     _allTasks = await API.getTasks();
     refreshAllTaskSelects();
-    // 問題4修正：Config 中的資料夾 ID 自動填入
     const fid = await API.getFolderId();
-    if (fid) document.getElementById('pdf-folder-id').value = fid;
+    if (fid) {
+      document.getElementById('pdf-folder-id').value   = fid;  // 建立任務頁
+      document.getElementById('setting-folder-id').value = fid;  // ★ 設定頁同步顯示
+    }
     const s = await API.getQuizSettings();
     document.getElementById('setting-quiz-count').value = s.quizCount || 10;
   } catch(e) { console.warn('初始化部分失敗：', e.message); }
+
+  // ★ 從 sessionStorage 恢復上次上傳的節點，讓使用者無需重新上傳即可重新生成
+  try {
+    const saved = sessionStorage.getItem('lastUpload');
+    if (saved) {
+      const { nodes, taskName, grade, subject } = JSON.parse(saved);
+      if (nodes && nodes.length > 0) {
+        globalUniqueNodes = nodes;
+        document.getElementById('weak-count').textContent = nodes.length;
+        if (taskName) document.getElementById('new-task-name').value = taskName;
+        if (grade)   document.getElementById('task-grade').value   = grade;
+        if (subject) document.getElementById('task-subject').value = subject;
+        document.getElementById('ai-generation-panel').style.display = 'block';
+      }
+    }
+  } catch(e) {}
 });
 
 function refreshAllTaskSelects() {
@@ -1149,6 +1167,10 @@ async function processExcel() {
 
       _allTasks = await API.getTasks();
       refreshAllTaskSelects();
+      // ★ 儲存到 sessionStorage，下次回到此頁面可直接繼續生成，不需重新上傳
+      sessionStorage.setItem('lastUpload', JSON.stringify({
+        nodes: globalUniqueNodes, taskName, grade, subject
+      }));
       Swal.fire('成功',`已建立「${taskName}」，共 ${studentData.length} 位學生，${globalUniqueNodes.length} 個弱點節點`,'success');
       document.getElementById('ai-generation-panel').style.display='block';
     } catch(err) { Swal.fire('錯誤','解析失敗：'+err.message,'error'); }
