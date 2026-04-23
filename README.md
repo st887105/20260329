@@ -1,1 +1,2 @@
-
+後端GAS和前端github之間加一個不屬於Google網域的轉發層-Cloudflare Workers完成後Chrome 無痕 + Google 登入也能正常使用
+https://script.google.com/macros/s/AKfycbwJ5ot116YfctRySWtZdCF8fEEdj1Qkw9IHGJk5bbmM_tACM3ZTqAavmF-i7DF1_wm83Q/exec
